@@ -1,41 +1,46 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import classNames from "classnames";
+import { faker } from "@faker-js/faker";
 import {
   faBuilding,
   faCircleCheck,
   faCommentDots,
   faLifeRing,
 } from "@fortawesome/free-regular-svg-icons";
-import { faker } from "@faker-js/faker";
 import {
   faArrowRightFromBracket,
   faBars,
   faBookOpen,
   faCity,
-  faFileLines,
   faGauge,
   faGear,
   faHome,
-  faLink,
-  faMagnet,
   faMoon,
   faShield,
-  faTags,
   faUserAlt,
-  faUsers,
   faWallet,
 } from "@fortawesome/free-solid-svg-icons";
-import NavMenu from "components/UIElements/NavMenu";
-import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
+import useClickOutside from "hooks/useClickOutside";
+import NavMenu, { NavMenuEnum } from "components/UIElements/NavMenu";
+import AudienceMenu from "components/Navigation/AudienceMenu";
+import CaptureToolsMenu from "components/Navigation/CaptureToolsMenu";
 
 const Layout = (): JSX.Element => {
   const [openMenu, setOpenMenu] = useState<boolean>(false);
+  const asideButtonRef = useRef<HTMLDivElement>(null);
+  const asideRef = useRef<HTMLDivElement>(null);
+
   const companyName = useMemo(() => faker.company.name(), []);
 
+  useClickOutside({
+    nodeRef: [asideRef, asideButtonRef],
+    onClick: () => setOpenMenu(false),
+  });
+
   return (
-    <div className="flex flex-col h-screen">
-      <nav className="py-2 flex-shrink-0 flex items-center justify-start w-full h-16 border-b border-b-slate-400 bg-slate-100">
+    <div className="flex flex-col h-screen overflow-hidden">
+      <nav className="py-2 flex-shrink-0 flex items-center justify-start w-full h-16 border-b border-b-slate-400 bg-slate-50">
         <div className="px-2 w-16 flex justify-center">
           <NavMenu
             className="hidden lg:block"
@@ -43,11 +48,13 @@ const Layout = (): JSX.Element => {
             href="/home"
             icon={faCity}
           />
-          <NavMenu
-            className="max-w-10 lg:hidden"
-            icon={faBars}
-            onClick={() => setOpenMenu((prev) => !prev)}
-          />
+          <div ref={asideButtonRef}>
+            <NavMenu
+              className="max-w-10 lg:hidden"
+              icon={faBars}
+              onClick={() => setOpenMenu((prev) => !prev)}
+            />
+          </div>
         </div>
         <div className="flex-1 flex items-center truncate px-2">
           <Link
@@ -89,45 +96,33 @@ const Layout = (): JSX.Element => {
           />
         </div>
       </nav>
-      <div className="relative flex-1">
+      <div className="relative flex-1 h-full">
         <aside
+          ref={asideRef}
           className={classNames(
-            "absolute top-0 left-0 z-10 w-16 h-full p-2 transition-transform -translate-x-full lg:translate-x-0 border-e border-e-slate-400 bg-slate-100",
-            {
-              "transform-none": openMenu,
-            }
+            "absolute top-0 left-0 z-10 w-min-16 w-max-52 lg:w-16 h-full p-2 transition-transform -translate-x-full lg:translate-x-0 border-e border-e-slate-400 bg-slate-50",
+            { "transform-none": openMenu }
           )}
         >
-          <NavMenu icon={faGauge} href="/dashboard" />
           <NavMenu
-            icon={faUsers}
-            href="/audience"
-            options={[
-              { text: "Subscribers", icon: faUsers, href: "/subscribers" },
-              { text: "Tags", icon: faTags, href: "/tags" },
-            ]}
+            variant={NavMenuEnum.SideMenu}
+            icon={faGauge}
+            href="/dashboard"
           />
-          <NavMenu icon={faCommentDots} href="/messages" />
+          <AudienceMenu />
           <NavMenu
-            icon={faMagnet}
-            href="/capture-tools"
-            options={[
-              { text: "Links Library", icon: faLink, href: "/links-library" },
-              {
-                text: "Post Engagement",
-                icon: faFileLines,
-                href: "/post-engagement",
-              },
-              {
-                text: "Send To Messenger",
-                icon: faFacebookMessenger,
-                href: "/send-to-messenger",
-              },
-            ]}
+            variant={NavMenuEnum.SideMenu}
+            icon={faCommentDots}
+            href="/messages"
           />
-          <NavMenu icon={faGear} href="/settings" />
+          <CaptureToolsMenu />
+          <NavMenu
+            variant={NavMenuEnum.SideMenu}
+            icon={faGear}
+            href="/settings"
+          />
         </aside>
-        <main className="p-2 lg:ms-16 h-full overflow-y-auto bg-slate-300">
+        <main className="px-2 py-5 lg:ms-16 h-full overflow-y-auto bg-slate-200 grid grid-cols-1 gap-0 lg:grid-cols-9">
           <Outlet />
         </main>
       </div>
