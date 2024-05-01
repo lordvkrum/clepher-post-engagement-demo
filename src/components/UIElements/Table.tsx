@@ -35,7 +35,9 @@ function Table<DataType>({
   getId,
 }: TableProps<DataType>): JSX.Element {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [selectAll, setSelectAll] = useState<"all" | "some" | "none">("none");
+  const [selectAll, setSelectAll] = useState<
+    "all" | "some-all" | "some-none" | "none"
+  >("none");
 
   const tableCellStyle = "px-3 py-2 text-start";
 
@@ -62,7 +64,7 @@ function Table<DataType>({
                 icon={
                   selectAll === "all"
                     ? faSquareCheck
-                    : selectAll === "some"
+                    : selectAll !== "none"
                     ? faSquareMinus
                     : faSquare
                 }
@@ -124,7 +126,7 @@ function Table<DataType>({
             const itemId = getId?.(item) || index;
             const itemSelected =
               selectAll === "all" ||
-              (selectAll === "some" && selected[itemId] !== false) ||
+              (selectAll === "some-all" && selected[itemId] !== false) ||
               selected[itemId];
 
             return (
@@ -140,11 +142,11 @@ function Table<DataType>({
                       }));
                       if (selectAll === "all") {
                         if (!newValue) {
-                          setSelectAll("some");
+                          setSelectAll("some-all");
                         }
-                      } else if (selectAll !== "none") {
+                      } else {
                         if (newValue) {
-                          setSelectAll("some");
+                          setSelectAll("some-none");
                         }
                       }
                     }}
