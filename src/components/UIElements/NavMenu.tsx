@@ -1,10 +1,11 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import classNames from "classnames";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import useClickOutside from "hooks/useClickOutside";
+import usePopoverPosition from "hooks/usePopoverPosition";
 
 export enum NavMenuEnum {
   NavHeader,
@@ -55,25 +56,14 @@ const NavMenu = ({
     onClick: () => setOpenMenu(false),
   });
 
-  useLayoutEffect(() => {
-    if (openMenu && menuRef.current && isNavHeader) {
-      const { left, width } = menuRef.current.getBoundingClientRect();
-      const overflowX = Math.abs(left - window.innerWidth);
-      if (left + width - window.innerWidth >= 0) {
-        menuRef.current.style.transform = `translateX(calc(-100% + ${overflowX}px - .5rem))`;
-      }
-    }
-  }, [openMenu, isNavHeader]);
+  usePopoverPosition({ menuRef, condition: openMenu && isNavHeader });
 
   return (
-    <div
-      ref={wrapperRef}
-      className={classNames("text-base relative", className)}
-    >
+    <div ref={wrapperRef} className={classNames("relative", className)}>
       <Link
         to={href}
         className={classNames("flex items-center", {
-          "justify-start w-full p-2 rounded-t-lg shadow bg-slate-50 text-slate-400":
+          "justify-start w-full p-2 rounded-t-lg shadow bg-slate-50 font-semibold text-slate-500":
             isPageMenu,
         })}
         onClick={(e) => {
@@ -117,7 +107,7 @@ const NavMenu = ({
             ref={menuRef}
             role="menu"
             className={classNames(
-              "p-2 z-10 shadow border-slate-400 bg-slate-50",
+              "p-2 z-20 shadow border-slate-400 bg-slate-50",
               {
                 absolute: isNavHeader,
                 "lg:hidden": isSideMenu,
@@ -126,7 +116,7 @@ const NavMenu = ({
               }
             )}
           >
-            <ul className="text-base">
+            <ul>
               {options?.map((item) => {
                 const itemHref = `${href}${item.href || "/"}`;
                 const itemIsActive = pathname.startsWith(itemHref);

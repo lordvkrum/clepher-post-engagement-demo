@@ -5,7 +5,7 @@ interface PageWithMenuProps {
   menu?: React.ReactNode;
 }
 
-const PageWithMenu = ({ menu }: PageWithMenuProps) => {
+const PageWithMenu = ({ menu }: PageWithMenuProps): JSX.Element => {
   return (
     <>
       <div className="px-6 col-span-2 hidden lg:block">{menu}</div>

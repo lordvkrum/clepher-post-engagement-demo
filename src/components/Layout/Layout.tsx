@@ -39,7 +39,7 @@ const Layout = (): JSX.Element => {
   });
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="text-base flex flex-col h-screen overflow-hidden">
       <nav className="py-2 flex-shrink-0 flex items-center justify-start w-full h-16 border-b border-b-slate-400 bg-slate-50">
         <div className="px-2 w-16 flex justify-center">
           <NavMenu
@@ -58,7 +58,7 @@ const Layout = (): JSX.Element => {
         </div>
         <div className="flex-1 flex items-center truncate px-2">
           <Link
-            className="px-2 py-1 truncate text-base rounded-md border border-slate-300"
+            className="px-2 py-1 truncate rounded-md border border-slate-300"
             to="/home"
           >
             {companyName}
@@ -96,11 +96,11 @@ const Layout = (): JSX.Element => {
           />
         </div>
       </nav>
-      <div className="relative flex-1 h-full">
+      <div className="relative flex-1 overflow-hidden">
         <aside
           ref={asideRef}
           className={classNames(
-            "absolute top-0 left-0 z-10 w-min-16 w-max-52 lg:w-16 h-full p-2 transition-transform -translate-x-full lg:translate-x-0 border-e border-e-slate-400 bg-slate-50",
+            "absolute top-0 left-0 z-20 w-min-16 w-max-52 lg:w-16 h-full p-2 transition-transform -translate-x-full lg:translate-x-0 border-e border-e-slate-400 bg-slate-50",
             { "transform-none": openMenu }
           )}
         >
