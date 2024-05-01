@@ -1,17 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDebounce } from "use-debounce";
-import { useFindPostEngagements } from "api/postEngagements";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faXmark } from "@fortawesome/free-solid-svg-icons";
-import Dropdown from "components/UIElements/Dropdown";
-import classNames from "classnames";
 import {
   faFacebookMessenger,
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
+import {
+  PostEngagement,
+  PostEngagementSortDir,
+  PostEngagementSortField,
+  useFindPostEngagements,
+} from "api/postEngagements";
+import Dropdown from "components/UIElements/Dropdown";
 import Pagination from "components/UIElements/Pagination";
+import Table from "components/UIElements/Table";
 
-const PostEngagementsList = () => {
+const PostEngagementsList = (): JSX.Element => {
+  const [sortField, setSortField] = useState<
+    [PostEngagementSortField, PostEngagementSortDir]
+  >(["name", "asc"]);
   const [page, setPage] = useState<number>(1);
   const [query, setQuery] = useState<string>("");
   const [debouncedQuery] = useDebounce(query, 1000);
@@ -19,9 +27,16 @@ const PostEngagementsList = () => {
   const { data, isLoading } = useFindPostEngagements({
     page,
     query: debouncedQuery,
+    sortField: sortField[0],
+    sortDir: sortField[1],
   });
 
-  const tableCellStyle = "px-3 py-2 text-start";
+  const totalPages = data?.totalPages || 1;
+  const prevTotalPages = useRef<number>(1);
+
+  useEffect(() => {
+    prevTotalPages.current = totalPages;
+  }, [totalPages]);
 
   return (
     <div className="px-6 h-full flex flex-col">
@@ -50,113 +65,65 @@ const PostEngagementsList = () => {
         <Dropdown text="Bulk Actions" options={[{ text: "Delete" }]} />
       </div>
       <div className="flex-1 overflow-auto">
-        <table className="table w-full text-sm px-6 bg-slate-50 rounded-xl">
-          <thead className="sticky z-10 top-0 font-semibold text-slate-500">
-            <tr>
-              <th
-                className={classNames(
-                  tableCellStyle,
-                  "bg-slate-50 rounded-ss-xl"
-                )}
-                style={{ width: 20 }}
-              >
-                <input type="checkbox" className="checkbox checkbox-sm" />
-              </th>
-              <th
-                className={classNames(tableCellStyle, "bg-slate-50")}
-                style={{ width: 20 }}
-              />
-              <th
-                className={classNames(tableCellStyle, "bg-slate-50")}
-                style={{ width: 150 }}
-              >
-                Name
-              </th>
-              <th
-                className={classNames(tableCellStyle, "bg-slate-50")}
-                style={{ width: 150 }}
-              >
-                Engaged / Unique
-              </th>
-              <th
-                className={classNames(tableCellStyle, "bg-slate-50")}
-                style={{ width: 150 }}
-              >
-                Acquired
-              </th>
-              <th
-                className={classNames(tableCellStyle, "bg-slate-50")}
-                style={{ width: 150 }}
-              >
-                Conversion
-              </th>
-              <th
-                className={classNames(
-                  tableCellStyle,
-                  "bg-slate-50 rounded-se-xl"
-                )}
-                style={{ width: 30 }}
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td className="p-2 text-center" colSpan={7}>
-                  Loading...
-                </td>
-              </tr>
-            ) : !data?.posts?.length ? (
-              <tr>
-                <td className="p-2 text-center" colSpan={7}>
-                  No Results
-                </td>
-              </tr>
-            ) : (
-              data?.posts?.map((item) => {
-                return (
-                  <tr key={item.id} className="border-t border-t-slate-300">
-                    <td className={tableCellStyle} style={{ width: 20 }}>
-                      <input type="checkbox" className="checkbox checkbox-sm" />
-                    </td>
-                    <td className={tableCellStyle} style={{ width: 20 }}>
-                      <FontAwesomeIcon
-                        icon={
-                          item.socialNetwork === "fb"
-                            ? faFacebookMessenger
-                            : faInstagram
-                        }
-                      />
-                    </td>
-                    <td className={tableCellStyle} style={{ width: 150 }}>
-                      {item.name}
-                    </td>
-                    <td className={tableCellStyle} style={{ width: 150 }}>
-                      {item.engaged} / {item.unique}
-                    </td>
-                    <td className={tableCellStyle} style={{ width: 150 }}>
-                      {item.acquired}
-                    </td>
-                    <td className={tableCellStyle} style={{ width: 150 }}>
-                      {item.conversion}%
-                    </td>
-                    <td className={tableCellStyle} style={{ width: 30 }}>
-                      <Dropdown
-                        text="Actions"
-                        options={[{ text: "Edit" }, { text: "Delete" }]}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+        <Table<PostEngagement>
+          columns={[
+            {
+              key: "socialNetwork",
+              text: "",
+              width: 20,
+              getContent: (item) => (
+                <FontAwesomeIcon
+                  icon={
+                    item.socialNetwork === "fb"
+                      ? faFacebookMessenger
+                      : faInstagram
+                  }
+                />
+              ),
+            },
+            { key: "name", text: "Name" },
+            {
+              key: "engaged",
+              text: "Engaged / Unique",
+              getContent: (item) => (
+                <>
+                  {item.engaged} / {item.unique}
+                </>
+              ),
+            },
+            { key: "acquired", text: "Acquired" },
+            {
+              key: "conversion",
+              text: "Conversion",
+              getContent: (item) => <>{item.conversion}%</>,
+            },
+            {
+              key: "actions",
+              text: "Actions",
+              width: 30,
+              sortable: false,
+              getContent: (item) => (
+                <Dropdown
+                  text="Actions"
+                  options={[{ text: "Edit" }, { text: "Delete" }]}
+                />
+              ),
+            },
+          ]}
+          data={data?.posts}
+          isLoading={isLoading}
+          sortField={sortField}
+          setSortField={(result) =>
+            setSortField([
+              result[0] as PostEngagementSortField,
+              result[1] as PostEngagementSortDir,
+            ])
+          }
+          getId={(item) => item.id}
+        />
       </div>
       <Pagination
-        totalPages={data?.totalPages || 1}
+        totalPages={isLoading ? prevTotalPages.current : totalPages}
         page={page}
         setPage={setPage}
       />

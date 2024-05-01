@@ -61,7 +61,7 @@ const NavMenu = ({
   return (
     <div
       ref={wrapperRef}
-      className={classNames("text-base relative", className)}
+      className={classNames("relative", className)}
     >
       <Link
         to={href}
@@ -110,7 +110,7 @@ const NavMenu = ({
             ref={menuRef}
             role="menu"
             className={classNames(
-              "p-2 z-10 shadow border-slate-400 bg-slate-50",
+              "p-2 z-20 shadow border-slate-400 bg-slate-50",
               {
                 absolute: isNavHeader,
                 "lg:hidden": isSideMenu,
@@ -119,7 +119,7 @@ const NavMenu = ({
               }
             )}
           >
-            <ul className="text-base">
+            <ul>
               {options?.map((item) => {
                 const itemHref = `${href}${item.href || "/"}`;
                 const itemIsActive = pathname.startsWith(itemHref);

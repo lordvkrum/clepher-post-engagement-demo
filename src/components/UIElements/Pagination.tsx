@@ -14,7 +14,11 @@ interface PaginationProps {
   setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const Pagination = ({ totalPages, page, setPage }: PaginationProps) => {
+const Pagination = ({
+  totalPages,
+  page,
+  setPage,
+}: PaginationProps): JSX.Element => {
   const [goToPage, setGoToPage] = useState<number>(1);
 
   const paginationStyle = "text-xs w-8 h-8 rounded-full text-white";

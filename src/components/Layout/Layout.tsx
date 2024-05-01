@@ -100,7 +100,7 @@ const Layout = (): JSX.Element => {
         <aside
           ref={asideRef}
           className={classNames(
-            "absolute top-0 left-0 z-10 w-min-16 w-max-52 lg:w-16 h-full p-2 transition-transform -translate-x-full lg:translate-x-0 border-e border-e-slate-400 bg-slate-50",
+            "absolute top-0 left-0 z-20 w-min-16 w-max-52 lg:w-16 h-full p-2 transition-transform -translate-x-full lg:translate-x-0 border-e border-e-slate-400 bg-slate-50",
             { "transform-none": openMenu }
           )}
         >

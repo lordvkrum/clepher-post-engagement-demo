@@ -1,8 +1,8 @@
 import React, { useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import useClickOutside from "hooks/useClickOutside";
 import usePopoverPosition from "hooks/usePopoverPosition";
-import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 
 interface DropdownOption {
   key?: string;
@@ -30,7 +30,7 @@ const Dropdown = ({ text, value, options }: DropdownProps): JSX.Element => {
   usePopoverPosition({ nodeRef: menuRef, condition: openMenu });
 
   return (
-    <div ref={wrapperRef} className="text-base relative">
+    <div ref={wrapperRef} className="relative">
       <button
         className="px-2 h-7 flex items-center text-slate-900 border border-slate-900 rounded-lg hover:bg-slate-900 hover:text-white"
         onClick={() => setOpenMenu((prev) => !prev)}
@@ -42,9 +42,9 @@ const Dropdown = ({ text, value, options }: DropdownProps): JSX.Element => {
         <div
           ref={menuRef}
           role="menu"
-          className="absolute p-2 z-10 mt-1 w-52 rounded-lg shadow border-slate-400 bg-slate-50"
+          className="absolute p-2 z-20 mt-1 w-52 rounded-lg shadow border-slate-400 bg-slate-50"
         >
-          <ul className="text-base">
+          <ul>
             {options?.map((item) => {
               return (
                 <li
