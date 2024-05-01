@@ -1,30 +1,36 @@
 import React, { useLayoutEffect } from "react";
 
 interface UsePopoverPositionProps {
-  nodeRef: React.RefObject<HTMLDivElement>;
+  wrapperRef?: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement>;
   condition?: boolean;
 }
 
 const usePopoverPosition = ({
-  nodeRef,
+  wrapperRef,
+  menuRef,
   condition = true,
 }: UsePopoverPositionProps) => {
   useLayoutEffect(() => {
-    if (condition && nodeRef.current) {
-      const { top, left, width, height } =
-        nodeRef.current.getBoundingClientRect();
-      const overflowX = Math.abs(left - window.innerWidth);
-      const overflowY = Math.abs(top - window.innerHeight);
+    if (condition && menuRef.current) {
+      if (wrapperRef?.current) {
+        const wrapperRect = wrapperRef.current.getBoundingClientRect();
+        menuRef.current.style.top = `${wrapperRect.top + wrapperRect.height}px`;
+        menuRef.current.style.left = `${wrapperRect.left}px`;
+      }
+      const menuRect = menuRef.current.getBoundingClientRect();
+      const overflowX = Math.abs(menuRect.left - window.innerWidth);
+      const overflowY = Math.abs(menuRect.top - window.innerHeight);
       let transform = "";
-      if (left + width - window.innerWidth >= 0) {
+      if (menuRect.left + menuRect.width - window.innerWidth >= 0) {
         transform += `translateX(calc(-100% + ${overflowX}px - .5rem)) `;
       }
-      if (top + height - window.innerHeight >= 0) {
+      if (menuRect.top + menuRect.height - window.innerHeight >= 0) {
         transform += `translateY(calc(-100% + ${overflowY}px - .5rem)) `;
       }
-      nodeRef.current.style.transform = transform;
+      menuRef.current.style.transform = transform;
     }
-  }, [condition, nodeRef]);
+  }, [condition, wrapperRef, menuRef]);
 };
 
 export default usePopoverPosition;

@@ -56,13 +56,10 @@ const NavMenu = ({
     onClick: () => setOpenMenu(false),
   });
 
-  usePopoverPosition({ nodeRef: menuRef, condition: openMenu && isNavHeader });
+  usePopoverPosition({ menuRef, condition: openMenu && isNavHeader });
 
   return (
-    <div
-      ref={wrapperRef}
-      className={classNames("relative", className)}
-    >
+    <div ref={wrapperRef} className={classNames("relative", className)}>
       <Link
         to={href}
         className={classNames("flex items-center", {

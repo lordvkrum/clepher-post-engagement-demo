@@ -1,7 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import classNames from "classnames";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowDown,
+  faArrowUp,
+  faSquareCheck,
+  faSquareMinus,
+} from "@fortawesome/free-solid-svg-icons";
+import { faSquare } from "@fortawesome/free-regular-svg-icons";
 
 interface TableColumn<DataType> {
   key: string;
@@ -28,6 +34,9 @@ function Table<DataType>({
   setSortField,
   getId,
 }: TableProps<DataType>): JSX.Element {
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [selectAll, setSelectAll] = useState<"all" | "some" | "none">("none");
+
   const tableCellStyle = "px-3 py-2 text-start";
 
   return (
@@ -38,7 +47,27 @@ function Table<DataType>({
             className={classNames(tableCellStyle, "bg-slate-50 rounded-ss-xl")}
             style={{ width: 20 }}
           >
-            <input type="checkbox" className="checkbox checkbox-sm" />
+            <button
+              className="text-lg w-full min-h-3 flex items-center"
+              onClick={() => {
+                setSelected({});
+                if (selectAll === "all") {
+                  setSelectAll("none");
+                } else {
+                  setSelectAll("all");
+                }
+              }}
+            >
+              <FontAwesomeIcon
+                icon={
+                  selectAll === "all"
+                    ? faSquareCheck
+                    : selectAll === "some"
+                    ? faSquareMinus
+                    : faSquare
+                }
+              />
+            </button>
           </th>
           {columns.map((col, index) => {
             const { sortable = true } = col;
@@ -46,7 +75,7 @@ function Table<DataType>({
               <th
                 key={col.key || col.text}
                 className={classNames(tableCellStyle, "bg-slate-50", {
-                  "rounded-ss-xl": index === columns.length - 1,
+                  "rounded-se-xl": index === columns.length - 1,
                 })}
                 style={{ width: col.width || 150 }}
               >
@@ -92,13 +121,38 @@ function Table<DataType>({
           </tr>
         ) : (
           data?.map((item, index) => {
+            const itemId = getId?.(item) || index;
+            const itemSelected =
+              selectAll === "all" ||
+              (selectAll === "some" && selected[itemId] !== false) ||
+              selected[itemId];
+
             return (
-              <tr
-                key={getId?.(item) || index}
-                className="border-t border-t-slate-300"
-              >
+              <tr key={itemId} className="border-t border-t-slate-300">
                 <td className={tableCellStyle} style={{ width: 20 }}>
-                  <input type="checkbox" className="checkbox checkbox-sm" />
+                  <button
+                    className="text-lg w-full min-h-3 flex items-center"
+                    onClick={() => {
+                      const newValue = !itemSelected;
+                      setSelected((prev) => ({
+                        ...prev,
+                        [itemId]: newValue,
+                      }));
+                      if (selectAll === "all") {
+                        if (!newValue) {
+                          setSelectAll("some");
+                        }
+                      } else if (selectAll !== "none") {
+                        if (newValue) {
+                          setSelectAll("some");
+                        }
+                      }
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={itemSelected ? faSquareCheck : faSquare}
+                    />
+                  </button>
                 </td>
                 {columns.map((col) => {
                   return (
@@ -120,5 +174,4 @@ function Table<DataType>({
     </table>
   );
 }
-
 export default Table;

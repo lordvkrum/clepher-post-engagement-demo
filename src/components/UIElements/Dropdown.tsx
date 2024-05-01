@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import useClickOutside from "hooks/useClickOutside";
 import usePopoverPosition from "hooks/usePopoverPosition";
+import { createPortal } from "react-dom";
 
 interface DropdownOption {
   key?: string;
@@ -27,7 +28,7 @@ const Dropdown = ({ text, value, options }: DropdownProps): JSX.Element => {
     onClick: () => setOpenMenu(false),
   });
 
-  usePopoverPosition({ nodeRef: menuRef, condition: openMenu });
+  usePopoverPosition({ wrapperRef, menuRef, condition: openMenu });
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -38,36 +39,39 @@ const Dropdown = ({ text, value, options }: DropdownProps): JSX.Element => {
         {text}
         <FontAwesomeIcon className="ps-2" icon={faCaretDown} />
       </button>
-      {openMenu && options?.length && (
-        <div
-          ref={menuRef}
-          role="menu"
-          className="absolute p-2 z-20 mt-1 w-52 rounded-lg shadow border-slate-400 bg-slate-50"
-        >
-          <ul>
-            {options?.map((item) => {
-              return (
-                <li
-                  key={item.key || item.text}
-                  role="menuitem"
-                  className={
-                    "w-full text-start rounded-md block p-2 hover:bg-slate-300"
-                  }
-                >
-                  <button
-                    onClick={() => {
-                      item.onClick?.();
-                      setOpenMenu(false);
-                    }}
+      {openMenu &&
+        options?.length &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="menu"
+            className="absolute p-2 z-20 mt-1 min-w-16 rounded-lg shadow border-slate-400 bg-slate-50"
+          >
+            <ul className="text-xs">
+              {options?.map((item) => {
+                return (
+                  <li
+                    key={item.key || item.text}
+                    role="menuitem"
+                    className={
+                      "w-full text-start rounded-md block p-2 hover:bg-slate-300"
+                    }
                   >
-                    {item.text}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
+                    <button
+                      onClick={() => {
+                        item.onClick?.();
+                        setOpenMenu(false);
+                      }}
+                    >
+                      {item.text}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
